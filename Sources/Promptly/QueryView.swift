@@ -7,66 +7,98 @@ struct QueryView: View {
     @State private var isLoading: Bool = false
     @State private var showCopied: Bool = false
     @FocusState private var isQueryFieldFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Selected Text:")
-                .font(.headline)
-            ScrollView {
-                Text(selectedText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-            }
-            .frame(height: 100)
-            
-            Text("Your Query:")
-                .font(.headline)
-            TextField("Enter your query...", text: $query)
-                .textFieldStyle(.roundedBorder)
-                .focused($isQueryFieldFocused)
-            
-            Button(action: sendToOllama) {
-                if isLoading {
-                    ProgressView()
-                } else {
-                    Text("Process with Ollama")
+        VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Context")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                ScrollView {
+                    Text(selectedText)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(colorScheme == .dark ? Color(.sRGB, white: 0.9, opacity: 1) : Color.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
                 }
+                .frame(height: 80)
+                .background(colorScheme == .dark ? Color(.sRGB, white: 0.15, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .disabled(query.isEmpty || isLoading)
-            .keyboardShortcut(.return, modifiers: [])
+            
+            Divider()
+                .padding(.vertical, 2)
+            
+            VStack(alignment: .leading, spacing: 6) {
+                TextField("Ask about this code...", text: $query)
+                    .font(.system(size: 14))
+                    .foregroundColor(Color.primary)
+                    .padding(10)
+                    .background(colorScheme == .dark ? Color(.sRGB, white: 0.17, opacity: 1) : Color(.sRGB, white: 0.97, opacity: 1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .focused($isQueryFieldFocused)
+                
+                Button(action: sendToOllama) {
+                    HStack {
+                        if isLoading {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else {
+                            Text("Process")
+                                .fontWeight(.medium)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(query.isEmpty || isLoading)
+                .keyboardShortcut(.return, modifiers: [])
+            }
             
             if !responseText.isEmpty {
-                HStack {
-                    Text("Response:")
-                        .font(.headline)
-                    Spacer()
-                    Button(action: {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(responseText, forType: .string)
-                        showCopied = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                            showCopied = false
+                Divider()
+                    .padding(.vertical, 2)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("Response")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button(action: {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(responseText, forType: .string)
+                            showCopied = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                showCopied = false
+                            }
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: showCopied ? "checkmark" : "doc.on.doc")
+                                    .imageScale(.small)
+                                Text(showCopied ? "Copied" : "Copy")
+                                    .font(.caption)
+                            }
+                            .foregroundColor(showCopied ? Color.green : Color.accentColor)
                         }
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: showCopied ? "checkmark" : "doc.on.doc")
-                            Text(showCopied ? "Copied!" : "Copy")
-                        }
-                        .foregroundColor(showCopied ? .green : .blue)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                    
+                    ScrollView {
+                        Text(responseText)
+                            .foregroundColor(colorScheme == .dark ? Color(.sRGB, white: 0.9, opacity: 1) : Color.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                    }
+                    .frame(height: 100)
+                    .background(colorScheme == .dark ? Color(.sRGB, white: 0.15, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-                ScrollView {
-                    Text(responseText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding()
-                        .background(Color.gray.opacity(0.1))
-                }
-                .frame(height: 100)
             }
         }
-        .padding()
+        .padding(16)
         .frame(width: 400)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
