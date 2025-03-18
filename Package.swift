@@ -6,9 +6,15 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
+    products: [
+        .library(
+            name: "Promptly",
+            targets: ["Promptly"]
+        )
+    ],
     dependencies: [],
     targets: [
-        .executableTarget(
+        .target(
             name: "Promptly",
             dependencies: [],
             path: "Sources/Promptly"

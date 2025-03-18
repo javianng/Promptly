@@ -140,4 +140,9 @@ struct SettingsView: View {
         .padding()
         .frame(minWidth: 400, minHeight: 300)
     }
+}
+
+#Preview {
+    SettingsView()
+        .frame(width: 400, height: 300)
 } 

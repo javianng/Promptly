@@ -197,4 +197,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: true)
     }
+}
+
+#Preview {
+    ContentView()
+        .frame(width: 500, height: 600)
+        .preferredColorScheme(.light)
 } 
