@@ -5,6 +5,7 @@ struct QueryView: View {
     @State private var query: String = ""
     @State private var responseText: String = ""
     @State private var isLoading: Bool = false
+    @State private var showCopied: Bool = false
     @FocusState private var isQueryFieldFocused: Bool
     
     var body: some View {
@@ -36,8 +37,26 @@ struct QueryView: View {
             .keyboardShortcut(.return, modifiers: [])
             
             if !responseText.isEmpty {
-                Text("Response:")
-                    .font(.headline)
+                HStack {
+                    Text("Response:")
+                        .font(.headline)
+                    Spacer()
+                    Button(action: {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(responseText, forType: .string)
+                        showCopied = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            showCopied = false
+                        }
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: showCopied ? "checkmark" : "doc.on.doc")
+                            Text(showCopied ? "Copied!" : "Copy")
+                        }
+                        .foregroundColor(showCopied ? .green : .blue)
+                    }
+                    .buttonStyle(.plain)
+                }
                 ScrollView {
                     Text(responseText)
                         .frame(maxWidth: .infinity, alignment: .leading)
