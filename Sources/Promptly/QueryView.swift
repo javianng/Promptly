@@ -6,25 +6,52 @@ struct QueryView: View {
     @State private var responseText: String = ""
     @State private var isLoading: Bool = false
     @State private var showCopied: Bool = false
+    @State private var isContextCollapsed: Bool = false
     @FocusState private var isQueryFieldFocused: Bool
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Context")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                ScrollView {
-                    Text(selectedText)
-                        .font(.system(.body, design: .monospaced))
-                        .foregroundColor(colorScheme == .dark ? Color(.sRGB, white: 0.9, opacity: 1) : Color.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(10)
+                HStack {
+                    Text("Context")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isContextCollapsed.toggle()
+                        }
+                    }) {
+                        Image(systemName: isContextCollapsed ? "chevron.down" : "chevron.up")
+                            .imageScale(.small)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .frame(height: 80)
-                .background(colorScheme == .dark ? Color(.sRGB, white: 0.15, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                if !isContextCollapsed {
+                    ScrollView {
+                        Text(selectedText)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(colorScheme == .dark ? Color(.sRGB, white: 0.9, opacity: 1) : Color.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(10)
+                    }
+                    .frame(height: 120)
+                    .background(colorScheme == .dark ? Color(.sRGB, white: 0.15, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .transition(.scale(scale: 1, anchor: .top).combined(with: .opacity))
+                } else {
+                    // Show a preview when collapsed
+                    Text(selectedText.prefix(30) + (selectedText.count > 30 ? "..." : ""))
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 4)
+                        .transition(.scale(scale: 0, anchor: .top).combined(with: .opacity))
+                }
             }
             
             Divider()
@@ -92,14 +119,14 @@ struct QueryView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(10)
                     }
-                    .frame(height: 100)
+                    .frame(height: 150)
                     .background(colorScheme == .dark ? Color(.sRGB, white: 0.15, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
         .padding(16)
-        .frame(width: 400)
+        .frame(width: 500)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isQueryFieldFocused = true
@@ -110,6 +137,11 @@ struct QueryView: View {
     func sendToOllama() {
         isLoading = true
         responseText = "" // Clear previous response
+        
+        // Auto-collapse context when sending query
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isContextCollapsed = true
+        }
         
         Task {
             do {
