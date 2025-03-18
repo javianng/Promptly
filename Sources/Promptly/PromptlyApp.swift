@@ -26,7 +26,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let button = statusItem?.button {
             button.image = NSImage(systemSymbolName: "text.bubble", accessibilityDescription: "Promptly")
             button.action = #selector(statusBarButtonClicked(_:))
-            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
         
         // Register global shortcut
@@ -40,18 +39,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc func statusBarButtonClicked(_ sender: NSStatusBarButton) {
-        let event = NSApp.currentEvent!
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Settings", action: #selector(showSettings), keyEquivalent: ","))
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         
-        if event.type == .rightMouseUp {
-            let menu = NSMenu()
-            menu.addItem(NSMenuItem(title: "Settings", action: #selector(showSettings), keyEquivalent: ","))
-            menu.addItem(NSMenuItem.separator())
-            menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-            
-            statusItem?.menu = menu
-            statusItem?.button?.performClick(nil)
-            statusItem?.menu = nil
-        }
+        statusItem?.menu = menu
+        statusItem?.button?.performClick(nil)
     }
     
     @objc func showSettings() {
