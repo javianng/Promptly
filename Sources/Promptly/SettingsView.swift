@@ -7,12 +7,26 @@ class SettingsViewModel: ObservableObject {
         }
     }
     
+    @Published var isRecordingShortcut = false {
+        didSet {
+            if isRecordingShortcut {
+                ShortcutManager.shared.startRecording()
+            } else {
+                ShortcutManager.shared.stopRecording()
+            }
+        }
+    }
+    
     @Published var availableModels: [String] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
     init() {
         self.selectedModel = UserDefaults.standard.string(forKey: "selectedOllamaModel") ?? "llama2"
+        // Default shortcut is now ⌘⇧I
+        if UserDefaults.standard.string(forKey: "customShortcut") == nil {
+            UserDefaults.standard.set("⌘⇧I", forKey: "customShortcut")
+        }
         Task {
             await fetchAvailableModels()
         }
@@ -48,57 +62,82 @@ class SettingsViewModel: ObservableObject {
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
+    @ObservedObject private var shortcutManager = ShortcutManager.shared
     
     var body: some View {
-        Form {
-            if viewModel.isLoading {
-                HStack {
-                    Spacer()
-                    ProgressView("Loading models...")
-                    Spacer()
-                }
-            } else if let error = viewModel.errorMessage {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Error loading models")
-                        .foregroundColor(.red)
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Button("Retry") {
-                        Task {
-                            await viewModel.fetchAvailableModels()
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Model Selection")
+                    .font(.headline)
+                
+                if viewModel.isLoading {
+                    ProgressView()
+                } else if !viewModel.availableModels.isEmpty {
+                    Picker("Model", selection: $viewModel.selectedModel) {
+                        ForEach(viewModel.availableModels, id: \.self) { model in
+                            Text(model).tag(model)
                         }
                     }
-                }
-            } else {
-                Picker("Ollama Model", selection: $viewModel.selectedModel) {
-                    ForEach(viewModel.availableModels, id: \.self) { model in
-                        Text(model)
-                            .tag(model)
-                    }
-                }
-                .pickerStyle(.menu)
-                .disabled(viewModel.availableModels.isEmpty)
-                
-                if viewModel.availableModels.isEmpty {
-                    Text("No models found. Please install models using 'ollama pull <model>'")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                        .padding(.top, 4)
-                } else {
-                    Text("Selected model: \(viewModel.selectedModel)")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                        .padding(.top, 4)
+                } else if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
                 }
             }
             
-            Text("Note: Make sure Ollama is running and models are downloaded using 'ollama pull <model>'")
-                .foregroundColor(.secondary)
-                .font(.caption)
-                .padding(.top, 8)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Keyboard Shortcut")
+                    .font(.headline)
+                
+                HStack {
+                    Text(viewModel.isRecordingShortcut ? "Recording: \(shortcutManager.currentShortcut.map { shortcutManager.shortcutToString(keyCode: $0.keyCode, modifiers: $0.modifiers) } ?? "...")" : (shortcutManager.currentShortcut.map { shortcutManager.shortcutToString(keyCode: $0.keyCode, modifiers: $0.modifiers) } ?? "Not set"))
+                        .padding(8)
+                        .frame(minWidth: 150)
+                        .background(Color.secondary.opacity(0.2))
+                        .cornerRadius(6)
+                    
+                    if viewModel.isRecordingShortcut {
+                        Button("Done") {
+                            // Save the shortcut when done
+                            if let currentShortcut = shortcutManager.currentShortcut {
+                                UserDefaults.standard.set(
+                                    shortcutManager.shortcutToString(
+                                        keyCode: currentShortcut.keyCode,
+                                        modifiers: currentShortcut.modifiers
+                                    ),
+                                    forKey: "customShortcut"
+                                )
+                            }
+                            viewModel.isRecordingShortcut.toggle()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.blue)
+                    } else {
+                        HStack {
+                            Button("Change") {
+                                viewModel.isRecordingShortcut.toggle()
+                            }
+                            
+                            Button("Reset") {
+                                // Reset to Command+Shift+I
+                                shortcutManager.currentShortcut = (keyCode: 34, modifiers: [.command, .shift])
+                                UserDefaults.standard.set("⌘⇧I", forKey: "customShortcut")
+                            }
+                            .foregroundColor(.red)
+                        }
+                    }
+                }
+                
+                if !viewModel.isRecordingShortcut {
+                    Text("Click 'Change' and press your desired keyboard shortcut")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            Spacer()
         }
-        .padding(20)
-        .frame(width: 300)
+        .padding(.top, 20)
+        .padding()
+        .frame(minWidth: 400, minHeight: 300)
     }
 } 

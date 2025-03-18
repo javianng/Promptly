@@ -56,16 +56,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 200),
+            contentRect: NSRect(x: 0, y: 0, width: 400, height: 300),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
         
         window.title = "Settings"
+        window.titlebarAppearsTransparent = false
         window.center()
         window.contentView = NSHostingView(rootView: SettingsView())
         window.isReleasedWhenClosed = false
+        window.setFrameAutosaveName("SettingsWindow")
         
         settingsWindow = window
         window.makeKeyAndOrderFront(nil)
@@ -82,8 +84,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func registerGlobalShortcut() {
         NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            // Check for Command + Shift + P
-            if event.modifierFlags.contains([.command, .shift]) && event.keyCode == 35 { // 35 is 'P'
+            let shortcut = ShortcutManager.shared.currentShortcut
+            
+            // Check if the pressed key matches the custom shortcut
+            if let shortcut = shortcut,
+               event.keyCode == UInt16(shortcut.keyCode) &&
+               event.modifierFlags.intersection([.command, .shift, .option, .control]) == shortcut.modifiers {
                 Task { @MainActor in
                     self?.handleShortcut()
                 }
