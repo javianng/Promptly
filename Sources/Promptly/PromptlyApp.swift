@@ -41,11 +41,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func statusBarButtonClicked(_ sender: NSStatusBarButton) {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Settings", action: #selector(showSettings), keyEquivalent: ","))
+        menu.addItem(NSMenuItem(title: "Donate", action: #selector(openDonationLink), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Report a Bug", action: #selector(openBugReportLink), keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         
         statusItem?.menu = menu
         statusItem?.button?.performClick(nil)
+    }
+    
+    @objc func openBugReportLink() {
+        if let url = URL(string: "https://github.com/javianng/Promptly/issues") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    
+    @objc func openDonationLink() {
+        if let url = URL(string: "https://paypal.me/j4vianz?country.x=SG&locale.x=en_GB") {
+            NSWorkspace.shared.open(url)
+        }
     }
     
     @objc func showSettings() {

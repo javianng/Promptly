@@ -158,6 +158,40 @@ struct SettingsView: View {
                 }
             }
             
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Donation")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Button("Support via PayPal") {
+                    if let url = URL(string: "https://paypal.me/j4vianz?country.x=SG&locale.x=en_GB") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .buttonStyle(.minimal)
+                
+                Text("Your support helps keep Promptly evolving!")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Feedback")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Button("Report a Bug") {
+                    if let url = URL(string: "https://github.com/javianng/Promptly/issues") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .buttonStyle(.minimal)
+                
+                Text("Help improve Promptly by reporting issues")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
             Spacer()
         }
         .padding(16)
