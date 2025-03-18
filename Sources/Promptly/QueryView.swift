@@ -93,8 +93,9 @@ struct QueryView: View {
                 Query: \(query)
                 """
                 
+                let selectedModel = UserDefaults.standard.string(forKey: "selectedOllamaModel") ?? "llama2"
                 let body: [String: Any] = [
-                    "model": "mistral",
+                    "model": selectedModel,
                     "prompt": prompt,
                     "stream": false // Disable streaming for simpler handling
                 ]
