@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 struct HoverableLink: View {
     let icon: String
@@ -141,12 +142,143 @@ struct LicenseView: View {
     }
 }
 
+struct OllamaView: View {
+    @State private var isOllamaRunning: Bool = false
+    @State private var isCheckingStatus: Bool = true
+    @State private var isStartingOllama: Bool = false
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        VStack(alignment: .center, spacing: 10) {
+            Text("Ollama Status")
+                .font(.title)
+                .padding(.top, 10)
+            
+            if isCheckingStatus {
+                ProgressView("Checking status...")
+                    .padding(.top, 20)
+            } else {
+                HStack {
+                    Circle()
+                        .fill(isOllamaRunning ? Color.green : Color.red)
+                        .frame(width: 12, height: 12)
+                    
+                    Text(isOllamaRunning ? "Ollama is running" : "Ollama is not running")
+                        .font(.headline)
+                }
+                .padding(.top, 10)
+                
+                if !isOllamaRunning {
+                    Button(action: {
+                        startOllama()
+                    }) {
+                        HStack {
+                            if isStartingOllama {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .padding(.trailing, 5)
+                            } else {
+                                Image(systemName: "play.fill")
+                            }
+                            Text(isStartingOllama ? "Starting..." : "Start Ollama")
+                        }
+                    }
+                    .buttonStyle(.minimalPrimary)
+                    .disabled(isStartingOllama)
+                    .padding(.top, 10)
+                }
+                
+                Button("Check Again") {
+                    checkOllamaStatus()
+                }
+                .buttonStyle(.minimal)
+                .padding(.top, 10)
+            }
+            
+            if !isCheckingStatus && !isOllamaRunning {
+                Text("Ollama needs to be running for Promptly to use local AI models.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                    .padding(.top, 20)
+            }
+            
+            Spacer()
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            checkOllamaStatus()
+        }
+    }
+    
+    private func checkOllamaStatus() {
+        isCheckingStatus = true
+        
+        DispatchQueue.global(qos: .background).async {
+            // Try to connect to Ollama API to see if it's running
+            guard let url = URL(string: "http://localhost:11434/api/version") else {
+                DispatchQueue.main.async {
+                    isOllamaRunning = false
+                    isCheckingStatus = false
+                }
+                return
+            }
+            
+            let task = URLSession.shared.dataTask(with: url) { _, response, error in
+                DispatchQueue.main.async {
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                        isOllamaRunning = true
+                    } else {
+                        isOllamaRunning = false
+                    }
+                    isCheckingStatus = false
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    private func startOllama() {
+        isStartingOllama = true
+        
+        DispatchQueue.global(qos: .background).async {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            process.arguments = ["ollama", "serve"]
+            
+            do {
+                try process.run()
+                
+                // Wait a moment for Ollama to start up
+                Thread.sleep(forTimeInterval: 2.0)
+                
+                DispatchQueue.main.async {
+                    checkOllamaStatus()
+                    isStartingOllama = false
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    isStartingOllama = false
+                    print("Failed to start Ollama: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     var body: some View {
         TabView {
             MainView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
+                }
+            
+            OllamaView()
+                .tabItem {
+                    Label("Ollama", systemImage: "server.rack")
                 }
             
             LicenseView()

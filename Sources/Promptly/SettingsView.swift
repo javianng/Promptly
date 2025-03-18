@@ -61,15 +61,19 @@ class SettingsViewModel: ObservableObject {
 }
 
 struct SettingsView: View {
-    @StateObject private var viewModel = SettingsViewModel()
+    @ObservedObject private var viewModel = SettingsViewModel()
     @ObservedObject private var shortcutManager = ShortcutManager.shared
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Model Selection Section
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Settings")
+                .font(.title)
+                .fontWeight(.bold)
+                .padding(.bottom, 8)
+            
             VStack(alignment: .leading, spacing: 8) {
-                Text("Model Selection")
+                Text("Model Settings")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
@@ -83,11 +87,8 @@ struct SettingsView: View {
                             Text(model).tag(model)
                         }
                     }
-                    .pickerStyle(.menu)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
-                    .background(colorScheme == .dark ? Color(.sRGB, white: 0.15, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .pickerStyle(PopUpButtonPickerStyle())
+                    .frame(maxWidth: 200)
                 } else if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
@@ -98,10 +99,6 @@ struct SettingsView: View {
                 }
             }
             
-            Divider()
-                .padding(.vertical, 2)
-            
-            // Keyboard Shortcut Section
             VStack(alignment: .leading, spacing: 8) {
                 Text("Keyboard Shortcut")
                     .font(.subheadline)
@@ -131,25 +128,26 @@ struct SettingsView: View {
                             }
                             viewModel.isRecordingShortcut.toggle()
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
-                    } else {
+                        .buttonStyle(.minimalPrimary)
+                    
                         HStack(spacing: 8) {
                             Button("Change") {
                                 viewModel.isRecordingShortcut.toggle()
                             }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
+                            .buttonStyle(.minimal)
                             
                             Button("Reset") {
                                 // Reset to Command+Shift+I
                                 shortcutManager.currentShortcut = (keyCode: 34, modifiers: [.command, .shift])
                                 UserDefaults.standard.set("⌘⇧I", forKey: "customShortcut")
                             }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                            .foregroundColor(.red)
+                            .buttonStyle(.minimal)
                         }
+                    } else {
+                        Button("Change") {
+                            viewModel.isRecordingShortcut.toggle()
+                        }
+                        .buttonStyle(.minimal)
                     }
                 }
                 

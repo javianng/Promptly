@@ -77,9 +77,8 @@ struct QueryView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.minimalPrimary)
                 .disabled(query.isEmpty || isLoading)
                 .keyboardShortcut(.return, modifiers: [])
             }
@@ -108,9 +107,8 @@ struct QueryView: View {
                                 Text(showCopied ? "Copied" : "Copy")
                                     .font(.caption)
                             }
-                            .foregroundColor(showCopied ? Color.green : Color.accentColor)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.minimal)
                     }
                     
                     ScrollView {
