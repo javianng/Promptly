@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Promptly}",
+            "name": "Debug Promptly",
+            "program": "${workspaceFolder:Promptly}/.build/debug/Promptly",
+            "preLaunchTask": "swift: Build Debug Promptly"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Promptly}",
+            "name": "Release Promptly",
+            "program": "${workspaceFolder:Promptly}/.build/release/Promptly",
+            "preLaunchTask": "swift: Build Release Promptly"
+        }
+    ]
+}
