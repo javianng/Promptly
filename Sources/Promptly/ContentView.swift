@@ -168,23 +168,4 @@ struct InstructionRow: View {
                 .foregroundColor(.primary)
         }
     }
-}
-
-#Preview("Content View") {
-    ContentView()
-}
-
-#Preview("Main View") {
-    MainView()
-        .frame(width: 500, height: 600)
-}
-
-#Preview("License View") {
-    LicenseView()
-        .frame(width: 500, height: 600)
-}
-
-#Preview("Instruction Row") {
-    InstructionRow(shortcut: "⌘ + ⇧ + I", description: "Sample instruction")
-        .padding()
 } 

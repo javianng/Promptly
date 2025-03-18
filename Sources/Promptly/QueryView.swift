@@ -127,6 +127,5 @@ struct QueryView: View {
 }
 
 #Preview {
-    QueryView(selectedText: "Example selected text for preview.\nThis is a multi-line sample to show how the view handles longer content.")
-        .frame(width: 400, height: 400)
+    QueryView(selectedText: "Sample selected text")
 } 
