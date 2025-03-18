@@ -1,0 +1,23 @@
+{
+  "": {
+    "swift-dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/master.swiftdeps"
+  },
+  "/Users/javianng/TheCode/Promptly/Sources/Promptly/ContentView.swift": {
+    "dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/ContentView.d",
+    "object": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/ContentView.swift.o",
+    "swiftmodule": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/ContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/ContentView.swiftdeps"
+  },
+  "/Users/javianng/TheCode/Promptly/Sources/Promptly/PromptlyApp.swift": {
+    "dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/PromptlyApp.d",
+    "object": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/PromptlyApp.swift.o",
+    "swiftmodule": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/PromptlyApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/PromptlyApp.swiftdeps"
+  },
+  "/Users/javianng/TheCode/Promptly/Sources/Promptly/QueryView.swift": {
+    "dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/QueryView.d",
+    "object": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/QueryView.swift.o",
+    "swiftmodule": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/QueryView~partial.swiftmodule",
+    "swift-dependencies": "/Users/javianng/TheCode/Promptly/.build/arm64-apple-macosx/debug/Promptly.build/QueryView.swiftdeps"
+  }
+}
