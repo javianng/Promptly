@@ -5,6 +5,7 @@ struct HoverableLink: View {
     let url: String
     let tooltip: String
     @State private var isHovering = false
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Link(destination: URL(string: url)!) {
@@ -38,21 +39,22 @@ struct HoverableLink: View {
 
 struct MainView: View {
     @ObservedObject private var shortcutManager = ShortcutManager.shared
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             if let appIcon = NSImage(named: "AppIcon") {
                 Image(nsImage: appIcon)
                     .resizable()
-                    .frame(width: 128, height: 128)
-                    .cornerRadius(16)
+                    .frame(width: 96, height: 96)
+                    .cornerRadius(12)
             }
             
             Text("Promptly")
-                .font(.system(size: 32, weight: .bold))
+                .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.primary)
             
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 InstructionRow(
                     shortcut: shortcutManager.currentShortcut.map { shortcutManager.shortcutToString(keyCode: $0.keyCode, modifiers: $0.modifiers) } ?? "Not set",
                     description: "Activate Promptly from anywhere"
@@ -68,20 +70,21 @@ struct MainView: View {
                     description: "Dismiss Promptly"
                 )
             }
-            .padding(.vertical)
+            .padding(.vertical, 8)
             
             Text("Promptly helps you be more productive with AI-powered assistance, right from your menubar.")
-                .font(.body)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
             
             Divider()
-                .padding(.vertical)
+                .padding(.vertical, 8)
             
             VStack(spacing: 8) {
                 Text("Developed by Javian Ng")
-                    .font(.headline)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
                 
                 HStack(spacing: 16) {
                     HoverableLink(
@@ -105,17 +108,19 @@ struct MainView: View {
                 .foregroundColor(.primary)
             }
         }
-        .padding(32)
+        .padding(24)
     }
 }
 
 struct LicenseView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("MIT License")
-                    .font(.title)
-                    .padding(.bottom, 8)
+                    .font(.title2)
+                    .padding(.bottom, 4)
                 
                 Text("""
                 Copyright (©) 2025 Javian Ng
@@ -126,11 +131,13 @@ struct LicenseView: View {
 
                 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 """)
-                .font(.body)
-                .foregroundColor(.primary)
+                .font(.system(.body, design: .monospaced))
+                .foregroundColor(colorScheme == .dark ? Color(.sRGB, white: 0.9, opacity: 1) : Color.primary)
+                .lineSpacing(2)
             }
-            .padding(32)
+            .padding(24)
         }
+        .background(colorScheme == .dark ? Color.clear : Color(.sRGB, white: 0.97, opacity: 1))
     }
 }
 
@@ -147,13 +154,14 @@ struct ContentView: View {
                     Label("License", systemImage: "doc.text")
                 }
         }
-        .frame(width: 500, height: 600)
+        .frame(width: 480, height: 580)
     }
 }
 
 struct InstructionRow: View {
     let shortcut: String
     let description: String
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         HStack {
@@ -161,10 +169,11 @@ struct InstructionRow: View {
                 .font(.system(.body, design: .monospaced))
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(Color.secondary.opacity(0.2))
+                .background(colorScheme == .dark ? Color(.sRGB, white: 0.2, opacity: 1) : Color(.sRGB, white: 0.95, opacity: 1))
                 .cornerRadius(6)
             
             Text(description)
+                .font(.subheadline)
                 .foregroundColor(.primary)
         }
     }
