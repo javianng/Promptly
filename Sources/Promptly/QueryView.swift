@@ -7,6 +7,7 @@ struct QueryView: View {
     @State private var isLoading: Bool = false
     @State private var showCopied: Bool = false
     @State private var isContextCollapsed: Bool = false
+    @State private var streamingTask: Task<Void, Never>?
     @FocusState private var isQueryFieldFocused: Bool
     @Environment(\.colorScheme) private var colorScheme
     
@@ -136,12 +137,15 @@ struct QueryView: View {
         isLoading = true
         responseText = "" // Clear previous response
         
+        // Cancel any ongoing streaming task
+        streamingTask?.cancel()
+        
         // Auto-collapse context when sending query
         withAnimation(.easeInOut(duration: 0.2)) {
             isContextCollapsed = true
         }
         
-        Task {
+        streamingTask = Task {
             do {
                 // Create the request to Ollama
                 let url = URL(string: "http://localhost:11434/api/generate")!
@@ -159,29 +163,56 @@ struct QueryView: View {
                 let body: [String: Any] = [
                     "model": selectedModel,
                     "prompt": prompt,
-                    "stream": false // Disable streaming for simpler handling
+                    "stream": true // Enable streaming
                 ]
                 
                 request.httpBody = try JSONSerialization.data(withJSONObject: body)
                 
-                let (data, _) = try await URLSession.shared.data(for: request)
+                let session = URLSession.shared
+                let dataTask = session.dataTask(with: request) { _, _, _ in }
+                dataTask.resume()
                 
-                // Decode the response
-                if let jsonString = String(data: data, encoding: .utf8),
-                   let jsonData = jsonString.data(using: .utf8),
-                   let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-                   let response = json["response"] as? String {
-                    await MainActor.run {
-                        responseText = response
-                        isLoading = false
+                // Get the session configuration to use the same cookies/cache
+                let sessionConfig = session.configuration
+                
+                // Create a new stream task with the same configuration
+                let streamingSession = URLSession(configuration: sessionConfig)
+                
+                let (asyncBytes, _) = try await streamingSession.bytes(for: request)
+                
+                // Process the streaming response
+                for try await line in asyncBytes.lines {
+                    if Task.isCancelled { break }
+                    
+                    guard !line.isEmpty else { continue }
+                    
+                    // Each line is a JSON object with a "response" field
+                    if let data = line.data(using: .utf8),
+                       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        
+                        // Extract and append the response chunk
+                        if let responseChunk = json["response"] as? String {
+                            await MainActor.run {
+                                responseText += responseChunk
+                            }
+                        }
+                        
+                        // Check if we've reached the end of the stream
+                        if let done = json["done"] as? Bool, done {
+                            break
+                        }
                     }
-                } else {
-                    throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to parse Ollama response"])
+                }
+                
+                await MainActor.run {
+                    isLoading = false
                 }
             } catch {
-                await MainActor.run {
-                    responseText = "Error: \(error.localizedDescription)"
-                    isLoading = false
+                if !Task.isCancelled {
+                    await MainActor.run {
+                        responseText += "\nError: \(error.localizedDescription)"
+                        isLoading = false
+                    }
                 }
             }
         }
