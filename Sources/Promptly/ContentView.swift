@@ -37,6 +37,32 @@ struct ContentView: View {
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
+            
+            Divider()
+                .padding(.vertical)
+            
+            VStack(spacing: 8) {
+                Text("Developed by Javian Ng")
+                    .font(.headline)
+                
+                HStack(spacing: 16) {
+                    Link(destination: URL(string: "https://www.javianng.com")!) {
+                        Image(systemName: "globe")
+                            .font(.title2)
+                    }
+                    
+                    Link(destination: URL(string: "https://www.linkedin.com/in/javianngzh/")!) {
+                        Image(systemName: "link.circle")
+                            .font(.title2)
+                    }
+                    
+                    Link(destination: URL(string: "https://github.com/javianng")!) {
+                        Image(systemName: "chevron.left.forwardslash.chevron.right")
+                            .font(.title2)
+                    }
+                }
+                .foregroundColor(.primary)
+            }
         }
         .padding(32)
     }
