@@ -20,15 +20,19 @@ Promptly is a lightweight macOS menubar application that gives you instant acces
 ## Screenshots
 
 ### Prompt Box Interface
+
 ![Promptly Full Interface](assets/promptly_full_interface.png)
 
 ### Ollama Service Indicator Interface
+
 ![Promptly Query Interface](assets/promptly_query_interface.png)
 
 ### License Window
+
 ![Promptly Response Window](assets/promptly_response_window.png)
 
 ### Settings Panel
+
 ![Promptly Settings Panel](assets/promptly_settings_panel.png)
 
 ## Requirements
