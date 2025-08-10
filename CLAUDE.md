@@ -39,10 +39,30 @@ xcodebuild test -scheme Promptly -destination 'platform=macOS' -only-testing:Pro
 
 ## Architecture
 
-### Core Structure
-- **PromptlyApp.swift**: Main app entry point using SwiftUI App lifecycle
-- **ContentView.swift**: Primary UI view (currently basic SwiftUI template)
-- **Promptly.entitlements**: App sandbox entitlements for file access
+The project follows MVVM architecture with a clean separation of concerns:
+
+### Directory Structure
+```
+Promptly/
+├── App/                          # Core app entry point
+│   ├── PromptlyApp.swift         # Main app entry point
+│   └── Promptly.entitlements     # App sandbox entitlements
+├── Assets/                       # Resources
+│   └── Assets.xcassets           # App icons, colors, images
+├── Views/                        # SwiftUI UI components
+│   ├── ContentView.swift         # Main UI view
+│   └── Components/               # Reusable UI components
+├── ViewModels/                   # ObservableObject classes (MVVM)
+├── Services/                     # Business logic and external integrations
+├── Models/                       # Data structures and enums
+├── Utils/                        # Helper functions and extensions
+└── Config/                       # Configuration files
+```
+
+### Architectural Patterns
+- **MVVM**: ViewModels act as the bridge between Views and Services
+- **Dependency Injection**: Services are injected into ViewModels for testability
+- **Single Responsibility**: Each directory has a focused purpose
 
 ### Project Configuration
 - **Xcode Project**: Standard iOS/macOS project structure
