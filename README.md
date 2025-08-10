@@ -1,7 +1,5 @@
 # Promptly
 
-![Promptly Logo](Sources/Promptly/Assets.xcassets/AppIcon.appiconset/1024.png)
-
 ## A macOS AI Assistant in Your Menubar
 
 Promptly is a lightweight macOS menubar application that gives you instant access to AI-powered assistance from anywhere in your system. Simply select text in any application, trigger Promptly with a keyboard shortcut, and get AI-generated responses based on the selected text.
@@ -20,15 +18,19 @@ Promptly is a lightweight macOS menubar application that gives you instant acces
 ## Screenshots
 
 ### Prompt Box Interface
+
 ![Promptly Full Interface](assets/promptly_full_interface.png)
 
 ### Ollama Service Indicator Interface
+
 ![Promptly Query Interface](assets/promptly_query_interface.png)
 
 ### License Window
+
 ![Promptly Response Window](assets/promptly_response_window.png)
 
 ### Settings Panel
+
 ![Promptly Settings Panel](assets/promptly_settings_panel.png)
 
 ## Requirements
